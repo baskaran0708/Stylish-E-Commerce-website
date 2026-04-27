@@ -30,10 +30,12 @@ window.UNSPLASH = function(id, w = 800) {
 const SEARCH_CONFIGS = [
   { query: "women fashion outfit street style",     cat: "Tops",       gender: "Women",  brands: ["FT Studio", "FT Atelier"] },
   { query: "men streetwear hoodie tshirt",          cat: "Tops",       gender: "Men",    brands: ["FT Sport",  "FT Studio"]  },
-  { query: "running sneakers shoes fashion",        cat: "Footwear",   gender: "Unisex", brands: ["FT Athletic"]              },
+  { query: "men running sneakers athletic shoes",   cat: "Footwear",   gender: "Men",    brands: ["FT Athletic"]              },
+  { query: "women sneakers heels fashion shoes",    cat: "Footwear",   gender: "Women",  brands: ["FT Athletic"]              },
   { query: "women dress elegant fashion",           cat: "Dresses",    gender: "Women",  brands: ["FT Atelier"]               },
-  { query: "winter jacket coat outerwear fashion",  cat: "Outerwear",  gender: "Unisex", brands: ["FT Outdoor"]               },
-  { query: "denim jeans pants street style",        cat: "Bottoms",    gender: "Men",    brands: ["FT Studio"]                },
+  { query: "men winter jacket coat outerwear",      cat: "Outerwear",  gender: "Men",    brands: ["FT Outdoor"]               },
+  { query: "women coat blazer fashion outerwear",   cat: "Outerwear",  gender: "Women",  brands: ["FT Outdoor", "FT Atelier"] },
+  { query: "men denim jeans pants street style",    cat: "Bottoms",    gender: "Men",    brands: ["FT Studio"]                },
   { query: "fashion accessories sunglasses bag",    cat: "Accessories",gender: "Unisex", brands: ["FT Studio"]                },
   { query: "women activewear sports leggings",      cat: "Bottoms",    gender: "Women",  brands: ["FT Sport"]                 },
 ];

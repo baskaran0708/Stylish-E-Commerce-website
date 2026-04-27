@@ -23,10 +23,13 @@ function ProductCard({ product, density = "spacious", style: cardStyle }) {
     >
       <div className="ft-card-media" style={{ aspectRatio: aspect }}>
         {!imgLoaded && <div className="ft-skel" style={{ position: "absolute", inset: 0 }} />}
-        <img src={imgA} alt={product.name} loading="lazy" onLoad={() => setImgLoaded(true)}
+        <img src={imgA} alt={product.name} loading="lazy"
+          onLoad={() => setImgLoaded(true)}
+          onError={e => { e.currentTarget.src = imgB; e.currentTarget.onerror = null; setImgLoaded(true); }}
           className="ft-card-img" style={{ opacity: hover ? 0 : 1 }}
           onClick={() => navigate({ name: "pdp", productId: product.id })} />
         <img src={imgB} alt="" loading="lazy" aria-hidden
+          onError={e => { e.currentTarget.style.display = "none"; e.currentTarget.onerror = null; }}
           className="ft-card-img" style={{ opacity: hover ? 1 : 0 }}
           onClick={() => navigate({ name: "pdp", productId: product.id })} />
 

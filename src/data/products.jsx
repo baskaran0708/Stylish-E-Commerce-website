@@ -142,7 +142,7 @@ const PRODUCTS = [
   {
     id: 17, name: "SPF 50 Daily Moisturiser", brand: "FT Beauty", price: 42,
     cat: "Beauty", gender: "Unisex", color: "N/A",
-    images: ["1522335789203-aaa90c4e3e83", "1556228720-195a672e8a03"],
+    images: ["1556228720-195a672e8a03", "1522337360947-c2b4cd24b9cb"],
     sizes: ["30ml", "50ml", "100ml"],
     badge: "NEW", rating: 4.8, reviews: 1204,
     desc: "Broad-spectrum SPF 50. Lightweight, non-greasy. Wears under makeup. For every skin tone.",
@@ -150,7 +150,7 @@ const PRODUCTS = [
   {
     id: 18, name: "Hyaluronic Acid Serum", brand: "FT Beauty", price: 68,
     cat: "Beauty", gender: "Unisex", color: "N/A",
-    images: ["1556228720-195a672e8a03", "1522335789203-aaa90c4e3e83"],
+    images: ["1522337360947-c2b4cd24b9cb", "1556228720-195a672e8a03"],
     sizes: ["15ml", "30ml"],
     rating: 4.9, reviews: 892,
     desc: "3-weight hyaluronic complex. 72h hydration. Fragrance-free. Dermatologist tested.",
@@ -158,7 +158,7 @@ const PRODUCTS = [
   {
     id: 19, name: "Clean Matte Lip Set", brand: "FT Beauty", price: 38,
     cat: "Beauty", gender: "Women", color: "4 Shades",
-    images: ["1522337360947-c2b4cd24b9cb", "1556228720-195a672e8a03"],
+    images: ["1556228720-195a672e8a03", "1522337360947-c2b4cd24b9cb"],
     sizes: ["One Size"],
     badge: "NEW", rating: 4.6, reviews: 423,
     desc: "Four everyday shades. Long-wear transfer-proof formula. Clean ingredients throughout.",
@@ -166,7 +166,7 @@ const PRODUCTS = [
   {
     id: 20, name: "Overnight Repair Mask", brand: "FT Beauty", price: 58,
     cat: "Beauty", gender: "Unisex", color: "N/A",
-    images: ["1522335789203-aaa90c4e3e83", "1566174053879-31528523f8ae"],
+    images: ["1566174053879-31528523f8ae", "1556228720-195a672e8a03"],
     sizes: ["50ml"],
     rating: 4.7, reviews: 634,
     desc: "Retinol + peptide complex. Wake up to visibly smoother, firmer skin. Clinically proven.",
