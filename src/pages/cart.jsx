@@ -7,9 +7,10 @@ function CartPage() {
   const [promo, setPromo] = React.useState("");
   const [promoApplied, setPromoApplied] = React.useState(false);
 
+  const allProds = window.getAllProducts ? window.getAllProducts() : window.PRODUCTS;
   const items = cart.map((c) => ({
     ...c,
-    product: window.PRODUCTS.find((p) => p.id === c.productId),
+    product: allProds.find((p) => p.id === c.productId),
   })).filter((c) => c.product);
 
   const subtotal = cartTotal;

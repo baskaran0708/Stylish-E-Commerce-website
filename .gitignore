@@ -1,6 +1,12 @@
 # Claude Code local settings
 .claude/
 
+# Environment — contains API keys (use src/env.example.js as template)
+.env
+.env.local
+.env.*.local
+src/env.js
+
 # OS
 .DS_Store
 Thumbs.db

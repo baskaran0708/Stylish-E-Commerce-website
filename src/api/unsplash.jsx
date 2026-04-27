@@ -1,18 +1,27 @@
 // ─────────────────────────────────────────────────────────────
 // Unsplash API integration
-// Access Key: public (safe in browser per Unsplash guidelines)
-// Secret Key: server-side only — never used here
+// Key is read from window.FT_ENV (set by src/env.js)
 // ─────────────────────────────────────────────────────────────
 
-const UNSPLASH_KEY = "FUDPrIvo9zpoIeMIyyqsuiKiaWBGVOXvpzGMRPZO-l8";
+const _getKey = () =>
+  (window.FT_ENV && window.FT_ENV.UNSPLASH_ACCESS_KEY) || "";
 
-// Extend the existing UNSPLASH() fn to handle full URLs returned by the API
-// (API gives urls.regular = "https://images.unsplash.com/photo-xxx?ixlib=...")
+// ── Extend UNSPLASH() to handle full API URLs ─────────────────
+// Unsplash API returns urls.regular with required params (ixlib, ixid…).
+// Stripping those breaks image attribution. We keep them intact and
+// only override the width parameter.
 const _baseFn = window.UNSPLASH;
 window.UNSPLASH = function(id, w = 800) {
   if (typeof id === "string" && id.startsWith("http")) {
-    const base = id.split("?")[0];
-    return `${base}?w=${w}&q=80&auto=format&fit=crop`;
+    try {
+      const url = new URL(id);
+      url.searchParams.set("w",   String(w));
+      url.searchParams.set("fit", "crop");
+      url.searchParams.set("q",   "80");
+      return url.toString();
+    } catch {
+      return id; // fall back to original URL if parsing fails
+    }
   }
   return _baseFn(id, w);
 };
@@ -20,7 +29,7 @@ window.UNSPLASH = function(id, w = 800) {
 // ── Search configs ────────────────────────────────────────────
 const SEARCH_CONFIGS = [
   { query: "women fashion outfit street style",     cat: "Tops",       gender: "Women",  brands: ["FT Studio", "FT Atelier"] },
-  { query: "men streetwear hoodie tshirt",          cat: "Tops",       gender: "Men",    brands: ["FT Sport", "FT Studio"]   },
+  { query: "men streetwear hoodie tshirt",          cat: "Tops",       gender: "Men",    brands: ["FT Sport",  "FT Studio"]  },
   { query: "running sneakers shoes fashion",        cat: "Footwear",   gender: "Unisex", brands: ["FT Athletic"]              },
   { query: "women dress elegant fashion",           cat: "Dresses",    gender: "Women",  brands: ["FT Atelier"]               },
   { query: "winter jacket coat outerwear fashion",  cat: "Outerwear",  gender: "Unisex", brands: ["FT Outdoor"]               },
@@ -39,52 +48,60 @@ const PRODUCT_NAMES = {
   Beauty:      ["Glow Serum", "Tinted SPF", "Lip Gloss Set", "Eye Cream"],
 };
 
-const COLORS = ["Black", "White", "Stone", "Navy", "Olive", "Dusty Pink", "Coral", "Volt Green"];
-const SIZES_CLOTHING  = ["XS", "S", "M", "L", "XL"];
-const SIZES_FOOTWEAR  = ["UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
-const PRICE_MAP = { Footwear: [95, 240], Tops: [55, 160], Dresses: [110, 320],
-                    Outerwear: [150, 400], Bottoms: [75, 185], Accessories: [35, 120], Beauty: [35, 80] };
+const COLORS      = ["Black", "White", "Stone", "Navy", "Olive", "Dusty Pink", "Coral", "Volt Green"];
+const SIZES_CLOTH = ["XS", "S", "M", "L", "XL"];
+const SIZES_SHOE  = ["UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
+const PRICE_MAP   = {
+  Footwear:    [95,  240], Tops:        [55, 160],
+  Dresses:     [110, 320], Outerwear:   [150, 400],
+  Bottoms:     [75,  185], Accessories: [35,  120],
+  Beauty:      [35,   80],
+};
 
 let _apiId = 2000;
 function _makeProduct(photo, cfg) {
-  const id   = _apiId++;
-  const names = PRODUCT_NAMES[cfg.cat] || ["Seasonal Piece"];
-  const brand = cfg.brands[id % cfg.brands.length];
+  const id       = _apiId++;
+  const names    = PRODUCT_NAMES[cfg.cat] || ["Seasonal Piece"];
+  const brand    = cfg.brands[id % cfg.brands.length];
   const [lo, hi] = PRICE_MAP[cfg.cat] || [50, 200];
-  const price = lo + Math.floor(((id * 37) % (hi - lo)));
+  const price    = lo + Math.floor(((id * 37) % (hi - lo)));
   const oldPrice = id % 4 === 0 ? Math.round(price * (1.2 + (id % 3) * 0.05)) : null;
-  const altText = photo.alt_description || "";
+  const altText  = photo.alt_description || "";
+  // Keep full API URL — the UNSPLASH() override handles http URLs correctly
+  const imgUrl   = photo.urls.regular;
 
   return {
     id,
-    name: `${brand.split(" ").slice(1).join(" ")} ${names[id % names.length]}`.trim(),
+    name:     `${brand.split(" ").slice(1).join(" ")} ${names[id % names.length]}`.trim(),
     brand,
     price,
     oldPrice,
-    cat: cfg.cat,
-    gender: cfg.gender,
-    color: COLORS[id % COLORS.length],
-    images: [photo.urls.regular, photo.urls.small || photo.urls.regular],
-    sizes: cfg.cat === "Footwear" ? SIZES_FOOTWEAR : SIZES_CLOTHING,
-    rating: parseFloat((4.0 + ((id * 3) % 9) * 0.1).toFixed(1)),
-    reviews: 40 + ((id * 7) % 860),
-    desc: altText
+    cat:      cfg.cat,
+    gender:   cfg.gender,
+    color:    COLORS[id % COLORS.length],
+    images:   [imgUrl, photo.urls.small || imgUrl],
+    sizes:    cfg.cat === "Footwear" ? SIZES_SHOE : SIZES_CLOTH,
+    rating:   parseFloat((4.0 + ((id * 3) % 9) * 0.1).toFixed(1)),
+    reviews:  40 + ((id * 7) % 860),
+    desc:     altText
       ? altText.charAt(0).toUpperCase() + altText.slice(1) + ". From our latest seasonal drop."
       : `Premium ${cfg.cat.toLowerCase()} from our latest seasonal collection.`,
-    badge: oldPrice ? `-${Math.round((1 - price / oldPrice) * 100)}%` : (id % 6 === 0 ? "NEW" : null),
+    badge:    oldPrice ? `-${Math.round((1 - price / oldPrice) * 100)}%` : (id % 6 === 0 ? "NEW" : null),
     isApiProduct: true,
   };
 }
 
 async function _fetchBatch(cfg, perPage = 4) {
-  const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(cfg.query)}&per_page=${perPage}&orientation=portrait&content_filter=high&client_id=${UNSPLASH_KEY}`;
+  const key = _getKey();
+  if (!key) return [];
+  const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(cfg.query)}&per_page=${perPage}&orientation=portrait&content_filter=high&client_id=${key}`;
   const r = await fetch(url);
   if (!r.ok) throw new Error(`Unsplash ${r.status}`);
   const d = await r.json();
   return (d.results || []).map(p => _makeProduct(p, cfg));
 }
 
-// Single shared promise — no duplicate fetches
+// Single shared promise — no duplicate network requests
 let _fetchPromise = null;
 async function fetchUnsplashProducts() {
   if (window.__unsplashProductCache) return window.__unsplashProductCache;
@@ -96,7 +113,7 @@ async function fetchUnsplashProducts() {
         return prods;
       })
       .catch(e => {
-        console.warn("Unsplash fetch failed:", e.message);
+        console.warn("Unsplash API:", e.message);
         window.__unsplashProductCache = [];
         return [];
       });
@@ -108,18 +125,25 @@ function useUnsplashProducts() {
   const [products, setProducts] = React.useState(window.__unsplashProductCache || []);
   const [loading,  setLoading]  = React.useState(!window.__unsplashProductCache);
   React.useEffect(() => {
-    if (window.__unsplashProductCache) { setProducts(window.__unsplashProductCache); setLoading(false); return; }
+    if (window.__unsplashProductCache) {
+      setProducts(window.__unsplashProductCache);
+      setLoading(false);
+      return;
+    }
     fetchUnsplashProducts().then(p => { setProducts(p); setLoading(false); });
   }, []);
   return { products, loading };
 }
 
-// Search photos by keyword (for hero / editorial sections)
 const _searchCache = {};
 async function unsplashSearch(query, count = 6) {
   if (_searchCache[query + count]) return _searchCache[query + count];
+  const key = _getKey();
+  if (!key) return [];
   try {
-    const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape&content_filter=high&client_id=${UNSPLASH_KEY}`);
+    const r = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape&content_filter=high&client_id=${key}`
+    );
     const d = await r.json();
     const result = (d.results || []).map(p => ({ url: p.urls.regular, credit: p.user?.name }));
     _searchCache[query + count] = result;
@@ -129,18 +153,9 @@ async function unsplashSearch(query, count = 6) {
   }
 }
 
-function useUnsplashSearch(query, count = 6) {
-  const [photos, setPhotos] = React.useState([]);
-  React.useEffect(() => {
-    if (!query) return;
-    unsplashSearch(query, count).then(setPhotos);
-  }, [query, count]);
-  return photos;
-}
-
-// Expose helpers used by pages
+// All products: static + API cache
 function getAllProducts() {
   return [...window.PRODUCTS, ...(window.__unsplashProductCache || [])];
 }
 
-Object.assign(window, { useUnsplashProducts, fetchUnsplashProducts, unsplashSearch, useUnsplashSearch, getAllProducts, UNSPLASH_KEY });
+Object.assign(window, { useUnsplashProducts, fetchUnsplashProducts, unsplashSearch, getAllProducts });

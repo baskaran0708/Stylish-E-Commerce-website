@@ -86,7 +86,8 @@ function ProductCardSkeleton() {
 // ── QuickView modal ──
 function QuickView() {
   const { quickView, setQuickView, addToCart, navigate } = useStore();
-  const product = quickView != null ? window.PRODUCTS.find((p) => p.id === quickView) : null;
+  const allProds = window.getAllProducts ? window.getAllProducts() : window.PRODUCTS;
+  const product = quickView != null ? allProds.find((p) => p.id === quickView) : null;
   const [size, setSize] = React.useState(null);
   const [imgIdx, setImgIdx] = React.useState(0);
 
